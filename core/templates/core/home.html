@@ -1,0 +1,58 @@
+{% extends "core/base.html" %}
+
+{% block title %}ComuniApp — Librería virtual comunitaria{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <h1 class="hero__title">Tu librería comunitaria, en un solo lugar</h1>
+    <p class="hero__subtitle">
+      Descubre libros de vendedores locales, restauradores y bibliotecarios de tu comunidad.
+    </p>
+
+    <form class="hero__search" action="#" method="get" role="search">
+      {# TODO (sesión catalog): búsqueda en landing conectada al catálogo #}
+      <label class="hero__search-label" for="hero-search">¿Qué libro buscas?</label>
+      <div class="hero__search-row">
+        <input
+          class="input"
+          type="search"
+          id="hero-search"
+          name="q"
+          placeholder="Título, autor o ISBN..."
+        >
+        <button type="submit" class="btn btn--primary">Buscar</button>
+      </div>
+    </form>
+
+    <div class="hero__actions">
+      {# TODO (sesión catalog): enlace al listado real #}
+      <a href="/catalog/" class="btn btn--accent">Explorar catálogo</a>
+    </div>
+  </div>
+</section>
+
+<section class="categories" aria-labelledby="categories-heading">
+  <div class="container">
+    <header class="categories__header">
+      <h2 id="categories-heading" class="h2">Explora por categoría</h2>
+      <p class="text-secondary text-body-small">
+        {# TODO (sesión catalog): categorías dinámicas desde BD #}
+        Categorías de ejemplo — el catálogo se implementará en una sesión posterior.
+      </p>
+    </header>
+
+    <ul class="categories__grid">
+      {% for category in categories %}
+      <li>
+        <article class="card category-card">
+          <div class="category-card__icon" aria-hidden="true">{{ category.name|slice:":1" }}</div>
+          <h3 class="category-card__title">{{ category.name }}</h3>
+          <p class="category-card__hint">Próximamente</p>
+        </article>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}
