@@ -1,0 +1,32 @@
+{% load humanize %}
+<article class="card book-card">
+  <a class="book-card__link" href="{% url 'catalog:detail' slug=book.slug %}">
+    <div class="book-card__cover">
+      {% if book.cover_or_placeholder %}
+      <img
+        class="book-card__cover-img"
+        src="{{ book.cover_or_placeholder }}"
+        alt="Portada de {{ book.title }}"
+        loading="lazy"
+        width="280"
+        height="200"
+      >
+      {% else %}
+      <div class="book-card__cover-placeholder" aria-hidden="true">
+        <svg class="book-card__cover-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </div>
+      {% endif %}
+    </div>
+    <div class="book-card__content">
+      <span class="book-card__badge {{ book.get_condition_display_class }}">
+        {{ book.get_condition_display }}
+      </span>
+      <h3 class="book-card__title">{{ book.title }}</h3>
+      <p class="book-card__author">{{ book.author }}</p>
+      <p class="book-card__price">${{ book.price|intcomma }}</p>
+    </div>
+  </a>
+</article>

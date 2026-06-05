@@ -1,0 +1,39 @@
+<nav class="checkout-steps" aria-label="Pasos del checkout">
+  <ol class="checkout-steps__list">
+    <li class="checkout-steps__item{% if checkout_step == 1 %} checkout-steps__item--active{% elif checkout_step > 1 %} checkout-steps__item--done{% endif %}">
+      <span class="checkout-steps__marker" aria-hidden="true">
+        {% if checkout_step > 1 %}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        {% else %}1{% endif %}
+      </span>
+      <span class="checkout-steps__label">Dirección</span>
+    </li>
+    <li class="checkout-steps__connector" aria-hidden="true"></li>
+    <li class="checkout-steps__item{% if checkout_step == 2 %} checkout-steps__item--active{% elif checkout_step > 2 %} checkout-steps__item--done{% endif %}">
+      <span class="checkout-steps__marker" aria-hidden="true">
+        {% if checkout_step > 2 %}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        {% else %}2{% endif %}
+      </span>
+      <span class="checkout-steps__label">Pago</span>
+    </li>
+    <li class="checkout-steps__connector" aria-hidden="true"></li>
+    <li class="checkout-steps__item{% if checkout_step == 3 %} checkout-steps__item--active{% elif checkout_step > 3 %} checkout-steps__item--done{% endif %}">
+      <span class="checkout-steps__marker" aria-hidden="true">
+        {% if checkout_step > 3 %}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        {% else %}3{% endif %}
+      </span>
+      <span class="checkout-steps__label">Resumen</span>
+    </li>
+    <li class="checkout-steps__connector" aria-hidden="true"></li>
+    <li class="checkout-steps__item{% if checkout_step == 4 %} checkout-steps__item--active checkout-steps__item--done{% endif %}">
+      <span class="checkout-steps__marker" aria-hidden="true">
+        {% if checkout_step == 4 %}
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+        {% else %}4{% endif %}
+      </span>
+      <span class="checkout-steps__label">Confirmación</span>
+    </li>
+  </ol>
+</nav>

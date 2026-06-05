@@ -15,6 +15,7 @@
   --success: #05964a;
   --error: #e53e3e;
   --warning: #dd6b20;
+  --badge-warning: #ca8a04;
   --border: #e2e8ed;
 
   /* Espaciado */
@@ -205,6 +206,12 @@ h4,
 .btn--outline:hover {
   background-color: var(--primary-light);
   color: var(--primary-dark);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Utilidades */

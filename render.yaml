@@ -1,0 +1,31 @@
+# Blueprint Render — ComuniApp (web + PostgreSQL)
+# https://render.com/docs/blueprint-spec
+
+databases:
+  - name: comuniapp-db
+    plan: free
+    databaseName: comuniapp
+    user: comuniapp
+
+services:
+  - type: web
+    name: comuniapp
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "false"
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://*.onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: comuniapp-db
+          property: connectionString

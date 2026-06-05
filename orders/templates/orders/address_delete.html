@@ -1,0 +1,52 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Eliminar dirección — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'orders/css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="orders-page" data-orders-page="address-delete">
+  <div class="container">
+    <header class="orders-page__header">
+      <a href="{% url 'orders:address_list' %}" class="orders-page__back text-body-small">
+        &larr; Volver a mis direcciones
+      </a>
+      <h1 class="h1 orders-page__title">Eliminar dirección</h1>
+    </header>
+
+    <div class="address-delete card">
+      <p class="address-delete__text">
+        ¿Estás seguro de que deseas eliminar esta dirección?
+      </p>
+      <address class="checkout-review-address address-delete__preview">
+        <strong>{{ address.line1 }}</strong><br>
+        {{ address.city }}, {{ address.department }} {{ address.postal_code }}<br>
+        Tel: {{ address.phone }}
+      </address>
+
+      <form
+        class="address-delete__form"
+        method="post"
+        action="{% url 'orders:address_delete' pk=address.pk %}"
+        data-address-delete-form
+      >
+        {% csrf_token %}
+        <div class="address-delete__actions">
+          <a href="{% url 'orders:address_list' %}" class="btn btn--outline">Cancelar</a>
+          <button type="submit" class="btn btn--accent" data-address-delete-submit>
+            Sí, eliminar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'orders/js/addresses.js' %}" defer></script>
+{% endblock %}

@@ -10,6 +10,13 @@ MVP web académico (Universidad Iberoamericana, Análisis y Diseño de Sistemas)
 - Python 3.11+
 - HTML, CSS y JavaScript vanilla (sin React, Vue, Tailwind ni Bootstrap)
 
+## Documentación para agentes
+
+| Documento | Contenido |
+|-----------|-----------|
+| **[IMPLEMENTATION_SPEC.md](IMPLEMENTATION_SPEC.md)** | Alcance de la sesión 0, arquitectura, contratos (plantillas, CSS, URLs) y backlog para sesiones posteriores |
+| **[RUNBOOK.md](RUNBOOK.md)** | Cómo encender el servidor, verificar HTTP 200 y resolver errores comunes |
+
 ## Inicio rápido
 
 ```bash

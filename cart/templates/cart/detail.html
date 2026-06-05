@@ -1,0 +1,171 @@
+{% extends "core/base.html" %}
+{% load humanize static %}
+
+{% block title %}Carrito de compras — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'cart/css/cart.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="cart-page" data-cart-page>
+  <div class="container">
+    <header class="cart-page__header">
+      <h1 class="h1 cart-page__title">Carrito de compras</h1>
+      {% if not cart_is_empty %}
+      <p class="cart-page__count text-secondary">
+        {{ cart_item_count }} artículo{{ cart_item_count|pluralize }} en tu carrito
+      </p>
+      {% endif %}
+    </header>
+
+    {% if cart_is_empty %}
+    <div class="cart-empty card">
+      <div class="cart-empty__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64">
+          <circle cx="9" cy="21" r="1"/>
+          <circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+      </div>
+      <h2 class="h3 cart-empty__title">Tu carrito está vacío</h2>
+      <p class="cart-empty__text text-secondary">
+        Explora el catálogo y encuentra tu próxima lectura.
+      </p>
+      <a href="{% url 'catalog:index' %}" class="btn btn--primary cart-empty__cta">
+        Explorar catálogo
+      </a>
+    </div>
+    {% else %}
+    <div class="cart-layout">
+      <div class="cart-layout__items">
+        <ul class="cart-list" role="list" aria-label="Artículos en el carrito">
+          {% for item in cart_items %}
+          <li
+            class="cart-item card"
+            data-cart-item
+            data-book-slug="{{ item.book.slug }}"
+          >
+            <a
+              class="cart-item__cover"
+              href="{% url 'catalog:detail' slug=item.book.slug %}"
+              aria-label="Ver detalle de {{ item.book.title }}"
+            >
+              {% if item.book.cover_or_placeholder %}
+              <img
+                class="cart-item__cover-img"
+                src="{{ item.book.cover_or_placeholder }}"
+                alt=""
+                width="80"
+                height="106"
+                loading="lazy"
+              >
+              {% else %}
+              <div class="cart-item__cover-placeholder" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              {% endif %}
+            </a>
+
+            <div class="cart-item__info">
+              <h2 class="cart-item__title h4">
+                <a href="{% url 'catalog:detail' slug=item.book.slug %}">{{ item.book.title }}</a>
+              </h2>
+              <p class="cart-item__author text-secondary">{{ item.book.author }}</p>
+              <p class="cart-item__unit-price text-body-small">
+                Precio unitario: <span data-unit-price>${{ item.unit_price|intcomma }}</span>
+              </p>
+            </div>
+
+            <form
+              class="cart-item__qty"
+              method="post"
+              action="{% url 'cart:update' slug=item.book.slug %}"
+              data-cart-update-form
+            >
+              {% csrf_token %}
+              <label class="sr-only" for="qty-{{ item.book.slug }}">Cantidad de {{ item.book.title }}</label>
+              <div class="cart-item__qty-controls" role="group" aria-label="Cantidad">
+                <button
+                  type="submit"
+                  class="cart-item__qty-btn"
+                  name="quantity"
+                  value="{{ item.quantity|add:'-1' }}"
+                  data-qty-decrease
+                  aria-label="Disminuir cantidad"
+                >&minus;</button>
+                <span class="cart-item__qty-value" data-qty-display aria-live="polite">{{ item.quantity }}</span>
+                <button
+                  type="submit"
+                  class="cart-item__qty-btn"
+                  name="quantity"
+                  value="{{ item.quantity|add:'1' }}"
+                  data-qty-increase
+                  aria-label="Aumentar cantidad"
+                >+</button>
+              </div>
+            </form>
+
+            <div class="cart-item__subtotal-wrap">
+              <span class="cart-item__subtotal-label text-body-xsmall text-secondary">Subtotal</span>
+              <p class="cart-item__subtotal" data-line-subtotal aria-live="polite">
+                ${{ item.line_subtotal|intcomma }}
+              </p>
+            </div>
+
+            <form
+              class="cart-item__remove"
+              method="post"
+              action="{% url 'cart:remove' slug=item.book.slug %}"
+              data-cart-remove-form
+            >
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="cart-item__remove-btn"
+                data-remove-item
+                aria-label="Eliminar {{ item.book.title }} del carrito"
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/>
+                  <path d="M10 11v6M14 11v6"/>
+                </svg>
+              </button>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <aside class="cart-summary card" aria-labelledby="cart-summary-heading">
+        <h2 class="h3 cart-summary__title" id="cart-summary-heading">Resumen</h2>
+
+        <dl class="cart-summary__rows">
+          <div class="cart-summary__row">
+            <dt>Artículos</dt>
+            <dd data-cart-summary-count>{{ cart_item_count }}</dd>
+          </div>
+          <div class="cart-summary__row cart-summary__row--total">
+            <dt>Total</dt>
+            <dd class="cart-summary__total" data-cart-total aria-live="polite">
+              ${{ cart_total|intcomma }}
+            </dd>
+          </div>
+        </dl>
+
+        <a href="{% url 'orders:checkout' %}" class="btn btn--accent cart-summary__checkout">
+          Proceder al pago
+        </a>
+
+        <a href="{% url 'catalog:index' %}" class="btn btn--outline cart-summary__continue">
+          Seguir comprando
+        </a>
+      </aside>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

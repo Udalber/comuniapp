@@ -1,0 +1,111 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}{{ page_title }} — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'orders/css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="orders-page" data-orders-page="address-form">
+  <div class="container">
+    <header class="orders-page__header">
+      <a href="{% url 'orders:address_list' %}" class="orders-page__back text-body-small">
+        &larr; Volver a mis direcciones
+      </a>
+      <h1 class="h1 orders-page__title">{{ page_title }}</h1>
+    </header>
+
+    <div class="address-form-layout">
+      <div class="address-form-layout__main card">
+        <form
+          class="checkout-form"
+          method="post"
+          action="{% if is_edit %}{% url 'orders:address_edit' pk=address.pk %}{% else %}{% url 'orders:address_add' %}{% endif %}"
+          data-checkout-form="address"
+          novalidate
+        >
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <p class="checkout-form__error-global" role="alert">{{ form.non_field_errors.0 }}</p>
+          {% endif %}
+
+          <div class="checkout-field{% if form.line1.errors %} checkout-field--invalid{% endif %}">
+            <label class="checkout-field__label" for="id_line1">
+              Dirección <span class="checkout-field__required" aria-hidden="true">*</span>
+            </label>
+            {{ form.line1 }}
+            {% for error in form.line1.errors %}
+            <p class="checkout-field__error" role="alert">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="checkout-form__row">
+            <div class="checkout-field{% if form.city.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_city">
+                Ciudad <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.city }}
+              {% for error in form.city.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% endfor %}
+            </div>
+            <div class="checkout-field{% if form.department.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_department">
+                Departamento <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.department }}
+              {% for error in form.department.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-form__row">
+            <div class="checkout-field{% if form.postal_code.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_postal_code">
+                Código postal <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.postal_code }}
+              {% for error in form.postal_code.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% endfor %}
+            </div>
+            <div class="checkout-field{% if form.phone.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_phone">
+                Teléfono <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.phone }}
+              {% for error in form.phone.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-field{% if form.instructions.errors %} checkout-field--invalid{% endif %}">
+            <label class="checkout-field__label" for="id_instructions">Instrucciones adicionales</label>
+            {{ form.instructions }}
+            {% for error in form.instructions.errors %}
+            <p class="checkout-field__error" role="alert">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="checkout-form__actions">
+            <a href="{% url 'orders:address_list' %}" class="btn btn--outline">Cancelar</a>
+            <button type="submit" class="btn btn--primary">
+              {% if is_edit %}Guardar cambios{% else %}Guardar dirección{% endif %}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'orders/js/orders.js' %}" defer></script>
+{% endblock %}

@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="{% static 'css/layout.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body data-suggest-url="{% url 'catalog:suggest' %}">
   <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
 
   <header class="site-header" role="banner">
@@ -31,8 +31,7 @@
       </button>
 
       <div class="navbar__panel" id="navbar-panel">
-        <form class="navbar__search" action="#" method="get" role="search">
-          {# TODO (sesión catalog): conectar búsqueda global #}
+        <form class="navbar__search" action="{% url 'catalog:index' %}" method="get" role="search">
           <label class="navbar__search-label" for="navbar-search">Buscar libros</label>
           <input
             class="input"
@@ -47,33 +46,79 @@
         <nav aria-label="Navegación principal">
           <ul class="navbar__nav">
             <li>
-              {# TODO (sesión catalog): {% url 'catalog:index' %} #}
-              <a class="navbar__link" href="/catalog/">Catálogo</a>
+              <a class="navbar__link" href="{% url 'catalog:index' %}">Catálogo</a>
             </li>
           </ul>
         </nav>
 
         <div class="navbar__actions">
-          {# TODO (sesión cart): contador dinámico desde sesión/BD #}
-          <a class="navbar__cart" href="/cart/" aria-label="Carrito de compras, 0 artículos">
+          <a
+            class="navbar__cart"
+            href="{% url 'cart:detail' %}"
+            aria-label="Carrito de compras, {{ cart_item_count }} artículo{{ cart_item_count|pluralize }}"
+          >
             <svg class="navbar__cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
               <circle cx="9" cy="21" r="1"/>
               <circle cx="20" cy="21" r="1"/>
               <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
             </svg>
             <span>Carrito</span>
-            <span class="navbar__cart-badge" aria-hidden="true">0</span>
+            <span class="navbar__cart-badge" aria-hidden="true">{{ cart_item_count }}</span>
           </a>
 
-          <div class="navbar__user-menu" role="group" aria-label="Cuenta de usuario">
-            {# TODO (sesión accounts): enlaces reales login/registro #}
-            <a class="navbar__user-link" href="/accounts/">Iniciar sesión</a>
-            <a class="navbar__user-link navbar__user-link--primary" href="/accounts/">Registrarse</a>
+          {% if user.is_authenticated %}
+          <div class="navbar__user-menu navbar__user-menu--auth" role="group" aria-label="Cuenta de usuario">
+            <button
+              type="button"
+              class="navbar__user-trigger"
+              id="navbar-user-trigger"
+              aria-expanded="false"
+              aria-controls="navbar-user-dropdown"
+              aria-haspopup="true"
+            >
+              <span class="navbar__user-name">{{ user.get_full_name|default:user.first_name|default:user.email }}</span>
+              <svg class="navbar__user-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M6 9l6 6 6-6"/>
+              </svg>
+            </button>
+            <div class="navbar__user-dropdown" id="navbar-user-dropdown" hidden>
+              <ul class="navbar__user-dropdown-list">
+                <li><a class="navbar__user-dropdown-link" href="{% url 'accounts:profile' %}">Mi cuenta</a></li>
+                <li><a class="navbar__user-dropdown-link" href="{% url 'orders:history' %}">Mis pedidos</a></li>
+                <li>
+                  <form method="post" action="{% url 'accounts:logout' %}" class="navbar__logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="navbar__user-dropdown-link navbar__user-dropdown-link--button">
+                      Cerrar sesión
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
           </div>
+          {% else %}
+          <div class="navbar__user-menu" role="group" aria-label="Cuenta de usuario">
+            <a class="navbar__user-link" href="{% url 'accounts:login' %}">Iniciar sesión</a>
+            <a class="navbar__user-link navbar__user-link--primary" href="{% url 'accounts:register' %}">Registrarse</a>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </header>
+
+  {% if messages %}
+  <div class="messages" role="region" aria-label="Notificaciones" aria-live="polite">
+    <ul class="messages__list">
+      {% for message in messages %}
+      <li class="messages__item messages__item--{{ message.tags|default:'info' }}" role="status">
+        <span class="messages__text">{{ message }}</span>
+        <button type="button" class="messages__dismiss" data-message-dismiss aria-label="Cerrar notificación">&times;</button>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
 
   <main id="main-content" class="site-main" role="main">
     {% block content %}{% endblock %}
@@ -89,6 +134,8 @@
   </footer>
 
   <script src="{% static 'js/navbar.js' %}" defer></script>
+  <script src="{% static 'catalog/js/search-suggest.js' %}" defer></script>
+  <script src="{% static 'cart/js/cart.js' %}" defer></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

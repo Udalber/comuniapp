@@ -1,0 +1,253 @@
+{% extends "core/base.html" %}
+{% load humanize static %}
+
+{% block title %}{{ book.title }} — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'catalog/css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'catalog/css/detail.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="book-detail">
+  <div class="container">
+    <nav class="book-detail__breadcrumb text-body-small" aria-label="Ruta de navegación">
+      <a href="{% url 'catalog:index' %}">Catálogo</a>
+      <span aria-hidden="true"> / </span>
+      <span>{{ book.title }}</span>
+    </nav>
+
+    <article class="book-detail__card card">
+      <div class="book-detail__layout">
+        {# —— Galería (columna izquierda) —— #}
+        <div class="book-detail__gallery" data-book-gallery>
+          <button
+            type="button"
+            class="book-detail__main-trigger"
+            id="book-gallery-main-trigger"
+            aria-label="Ampliar imagen: {{ gallery.0.caption }}"
+            data-gallery-open
+          >
+            <div class="book-detail__main-frame" id="book-gallery-main-frame">
+              {% with first=gallery.0 %}
+              {% if first.is_placeholder %}
+              <div class="book-detail__placeholder" aria-hidden="true">
+                <svg class="book-detail__placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+                <span class="book-detail__placeholder-label">{{ first.caption }}</span>
+              </div>
+              {% else %}
+              <img
+                class="book-detail__main-img"
+                id="book-gallery-main-img"
+                src="{{ first.url }}"
+                alt="{{ first.caption }} de {{ book.title }}"
+                width="480"
+                height="640"
+              >
+              {% endif %}
+              {% endwith %}
+            </div>
+            <span class="book-detail__zoom-hint text-body-xsmall" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7"/>
+                <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+              </svg>
+              Clic para ampliar
+            </span>
+          </button>
+
+          <ul class="book-detail__thumbs" role="list" aria-label="Miniaturas de la galería">
+            {% for item in gallery %}
+            <li>
+              <button
+                type="button"
+                class="book-detail__thumb{% if forloop.first %} is-active{% endif %}"
+                data-gallery-thumb
+                data-image-url="{{ item.url|default:'' }}"
+                data-caption="{{ item.caption }}"
+                data-is-placeholder="{{ item.is_placeholder|yesno:'true,false' }}"
+                aria-label="Ver {{ item.caption }}"
+                {% if forloop.first %}aria-current="true"{% endif %}
+              >
+                {% if item.is_placeholder %}
+                <span class="book-detail__thumb-placeholder" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                  </svg>
+                </span>
+                {% else %}
+                <img
+                  src="{{ item.url }}"
+                  alt=""
+                  width="80"
+                  height="80"
+                  loading="lazy"
+                >
+                {% endif %}
+                <span class="book-detail__thumb-caption text-body-xsmall">{{ item.caption }}</span>
+              </button>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        {# —— Información (columna derecha) —— #}
+        <div class="book-detail__info">
+          <span class="book-card__badge {{ book.get_condition_display_class }}">
+            {{ book.get_condition_display }}
+          </span>
+
+          <h1 class="book-detail__title h1">{{ book.title }}</h1>
+          <p class="book-detail__author text-secondary">{{ book.author }}</p>
+          <p class="book-detail__price" aria-label="Precio: {{ book.price|intcomma }} pesos colombianos">
+            ${{ book.price|intcomma }}
+          </p>
+
+          <dl class="book-detail__meta">
+            {% if book.editorial %}
+            <div class="book-detail__meta-row">
+              <dt>Editorial</dt>
+              <dd>{{ book.editorial }}</dd>
+            </div>
+            {% endif %}
+            {% if book.year %}
+            <div class="book-detail__meta-row">
+              <dt>Año</dt>
+              <dd>{{ book.year }}</dd>
+            </div>
+            {% endif %}
+            {% if book.isbn %}
+            <div class="book-detail__meta-row">
+              <dt>ISBN</dt>
+              <dd>{{ book.isbn }}</dd>
+            </div>
+            {% endif %}
+            <div class="book-detail__meta-row">
+              <dt>Categoría</dt>
+              <dd>
+                <a href="{% url 'catalog:index' %}?category={{ book.category.slug }}">
+                  {{ book.category.name }}
+                </a>
+              </dd>
+            </div>
+            <div class="book-detail__meta-row">
+              <dt>Estado</dt>
+              <dd>{{ book.get_condition_display }}</dd>
+            </div>
+          </dl>
+
+          {% if book.description %}
+          <div class="book-detail__description">
+            <h2 class="h4">Descripción del vendedor</h2>
+            <p>{{ book.description|linebreaksbr }}</p>
+          </div>
+          {% endif %}
+
+          <div class="book-detail__actions">
+            <form
+              method="post"
+              action="{% url 'cart:add' slug=book.slug %}"
+              class="book-detail__cart-form"
+              data-add-to-cart-form
+            >
+              {% csrf_token %}
+              {% if book in cart %}
+              <button
+                type="button"
+                class="btn btn--primary book-detail__cart-btn"
+                data-book-slug="{{ book.slug }}"
+                data-in-cart
+              >
+                Ver en el carrito
+              </button>
+              {% else %}
+              <button
+                type="submit"
+                class="btn btn--accent book-detail__cart-btn"
+                data-book-slug="{{ book.slug }}"
+                data-add-to-cart
+              >
+                Agregar al carrito
+              </button>
+              {% endif %}
+            </form>
+            <a href="{% url 'catalog:index' %}" class="btn btn--outline book-detail__back-link">
+              Volver al catálogo
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    {% if related_books %}
+    <section class="book-detail__related" aria-labelledby="related-books-heading">
+      <h2 class="h3" id="related-books-heading">También en {{ book.category.name }}</h2>
+      <ul class="book-detail__related-grid" role="list">
+        {% for related in related_books %}
+        <li>
+          {% include "catalog/_book_card.html" with book=related %}
+        </li>
+        {% endfor %}
+      </ul>
+    </section>
+    {% endif %}
+  </div>
+</section>
+
+{# —— Visor modal ampliable —— #}
+<div
+  class="book-detail__modal"
+  id="book-gallery-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="book-gallery-modal-title"
+  hidden
+>
+  <div class="book-detail__modal-overlay" data-gallery-close tabindex="-1"></div>
+  <div class="book-detail__modal-panel">
+    <header class="book-detail__modal-header">
+      <h2 class="book-detail__modal-title h4" id="book-gallery-modal-title">
+        {{ gallery.0.caption }}
+      </h2>
+      <button
+        type="button"
+        class="book-detail__modal-close"
+        data-gallery-close
+        aria-label="Cerrar visor de imagen"
+      >
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </header>
+    <div class="book-detail__modal-body" id="book-gallery-modal-body">
+      {% with first=gallery.0 %}
+      {% if first.is_placeholder %}
+      <div class="book-detail__modal-placeholder" aria-hidden="true">
+        <svg class="book-detail__placeholder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+        <span class="book-detail__placeholder-label">{{ first.caption }}</span>
+      </div>
+      {% else %}
+      <img
+        class="book-detail__modal-img"
+        id="book-gallery-modal-img"
+        src="{{ first.url }}"
+        alt="{{ first.caption }} de {{ book.title }}"
+      >
+      {% endif %}
+      {% endwith %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'catalog/js/book-gallery.js' %}" defer></script>
+{% endblock %}

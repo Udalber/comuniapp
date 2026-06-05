@@ -1,0 +1,81 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Mis direcciones — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'orders/css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="orders-page" data-orders-page="addresses">
+  <div class="container">
+    <header class="orders-page__header orders-page__header--row">
+      <div>
+        <h1 class="h1 orders-page__title">Mis direcciones</h1>
+        <p class="orders-page__subtitle text-secondary">
+          Gestiona las direcciones guardadas para tus compras.
+        </p>
+      </div>
+      <a href="{% url 'orders:address_add' %}" class="btn btn--primary">
+        Agregar dirección
+      </a>
+    </header>
+
+    {% if addresses %}
+    <ul class="address-list" role="list">
+      {% for address in addresses %}
+      <li class="address-list__item card">
+        <div class="address-list__info">
+          <p class="address-list__line">
+            <strong>{{ address.line1 }}</strong>
+            {% if address.is_default %}
+            <span class="address-list__badge">Predeterminada</span>
+            {% endif %}
+          </p>
+          <p class="address-list__meta text-secondary">
+            {{ address.city }}, {{ address.department }} — {{ address.postal_code }}
+          </p>
+          <p class="address-list__meta text-secondary">Tel: {{ address.phone }}</p>
+          {% if address.instructions %}
+          <p class="address-list__meta text-secondary">{{ address.instructions }}</p>
+          {% endif %}
+        </div>
+        <div class="address-list__actions">
+          <a
+            href="{% url 'orders:address_edit' pk=address.pk %}"
+            class="btn btn--outline btn--sm"
+          >
+            Editar
+          </a>
+          <a
+            href="{% url 'orders:address_delete' pk=address.pk %}"
+            class="btn btn--outline btn--sm address-list__delete"
+          >
+            Eliminar
+          </a>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="orders-empty card">
+      <div class="orders-empty__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <h2 class="h3 orders-empty__title">No tienes direcciones guardadas</h2>
+      <p class="orders-empty__text text-secondary">
+        Agrega una dirección para agilizar tus próximas compras.
+      </p>
+      <a href="{% url 'orders:address_add' %}" class="btn btn--primary orders-empty__cta">
+        Agregar dirección
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

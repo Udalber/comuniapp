@@ -1,0 +1,76 @@
+{% extends "core/base.html" %}
+{% load humanize static %}
+
+{% block title %}Pedido confirmado — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page checkout-page--confirmation" data-checkout-page="confirmation">
+  <div class="container">
+    {% include "orders/_checkout_steps.html" %}
+
+    <div class="checkout-confirmation card">
+      <div class="checkout-confirmation__icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" width="64" height="64" fill="none">
+          <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="3"/>
+          <path d="M20 33l8 8 16-18" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <h1 class="h1 checkout-confirmation__title">¡Pedido confirmado!</h1>
+      <p class="checkout-confirmation__number">
+        Número de pedido: <strong>{{ order.number }}</strong>
+      </p>
+      <p class="checkout-confirmation__delivery text-secondary">
+        Entrega estimada: <strong>{{ order.estimated_delivery|date:"d \d\e F \d\e Y" }}</strong>
+      </p>
+
+      <section class="checkout-confirmation__summary" aria-labelledby="confirmation-summary-heading">
+        <h2 class="h3" id="confirmation-summary-heading">Resumen</h2>
+        <ul class="checkout-review-items" role="list">
+          {% for item in order.items.all %}
+          <li class="checkout-review-item">
+            <div class="checkout-review-item__info">
+              <span class="checkout-review-item__title">{{ item.title_snapshot }}</span>
+              <span class="checkout-review-item__meta text-secondary">
+                {{ item.quantity }} x ${{ item.unit_price_snapshot|intcomma }}
+              </span>
+            </div>
+            <span class="checkout-review-item__subtotal">${{ item.line_subtotal|intcomma }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+
+        <dl class="checkout-summary__rows checkout-confirmation__totals">
+          <div class="checkout-summary__row">
+            <dt>Subtotal</dt>
+            <dd>${{ order.subtotal|intcomma }}</dd>
+          </div>
+          <div class="checkout-summary__row">
+            <dt>Envío</dt>
+            <dd>${{ order.shipping_cost|intcomma }}</dd>
+          </div>
+          <div class="checkout-summary__row checkout-summary__row--total">
+            <dt>Total pagado</dt>
+            <dd class="checkout-summary__total">${{ order.total|intcomma }}</dd>
+          </div>
+        </dl>
+
+        <address class="checkout-review-address checkout-confirmation__address">
+          <strong>Envío a:</strong><br>
+          {{ order.shipping_line1 }}<br>
+          {{ order.shipping_city }}, {{ order.shipping_department }} {{ order.shipping_postal_code }}
+        </address>
+      </section>
+
+      <div class="checkout-confirmation__actions">
+        <a href="{% url 'catalog:index' %}" class="btn btn--primary">Volver al catálogo</a>
+        <a href="{% url 'orders:history' %}" class="btn btn--outline">Ver mis pedidos</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

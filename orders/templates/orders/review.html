@@ -1,0 +1,98 @@
+{% extends "core/base.html" %}
+{% load humanize static %}
+
+{% block title %}Resumen del pedido — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page" data-checkout-page="review">
+  <div class="container">
+    {% include "orders/_checkout_steps.html" %}
+
+    <header class="checkout-page__header">
+      <h1 class="h1 checkout-page__title">Resumen del pedido</h1>
+      <p class="checkout-page__subtitle text-secondary">
+        Revisa los detalles antes de confirmar tu compra.
+      </p>
+    </header>
+
+    <div class="checkout-layout checkout-layout--review">
+      <div class="checkout-layout__main">
+        <section class="checkout-review-section card" aria-labelledby="review-items-heading">
+          <div class="checkout-review-section__header">
+            <h2 class="h3 checkout-review-section__title" id="review-items-heading">Libros</h2>
+          </div>
+          <ul class="checkout-review-items" role="list">
+            {% for item in cart_items %}
+            <li class="checkout-review-item">
+              <div class="checkout-review-item__info">
+                <span class="checkout-review-item__title">{{ item.book.title }}</span>
+                <span class="checkout-review-item__meta text-secondary">
+                  {{ item.quantity }} x ${{ item.unit_price|intcomma }}
+                </span>
+              </div>
+              <span class="checkout-review-item__subtotal">${{ item.line_subtotal|intcomma }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+
+        <section class="checkout-review-section card" aria-labelledby="review-address-heading">
+          <div class="checkout-review-section__header">
+            <h2 class="h3 checkout-review-section__title" id="review-address-heading">Dirección de envío</h2>
+            <a href="{% url 'orders:checkout' %}" class="checkout-review-section__edit">Editar</a>
+          </div>
+          <address class="checkout-review-address">
+            {{ address.line1 }}<br>
+            {{ address.city }}, {{ address.department }} {{ address.postal_code }}<br>
+            Tel: {{ address.phone }}
+            {% if address.instructions %}
+            <br><span class="text-secondary">Instrucciones: {{ address.instructions }}</span>
+            {% endif %}
+          </address>
+        </section>
+
+        <section class="checkout-review-section card" aria-labelledby="review-payment-heading">
+          <div class="checkout-review-section__header">
+            <h2 class="h3 checkout-review-section__title" id="review-payment-heading">Método de pago</h2>
+            <a href="{% url 'orders:payment' %}" class="checkout-review-section__edit">Editar</a>
+          </div>
+          <p class="checkout-review-payment">{{ payment_method_label }}</p>
+        </section>
+      </div>
+
+      <aside class="checkout-summary card" aria-labelledby="review-summary-heading">
+        <h2 class="h3 checkout-summary__title" id="review-summary-heading">Total a pagar</h2>
+        <dl class="checkout-summary__rows">
+          <div class="checkout-summary__row">
+            <dt>Subtotal</dt>
+            <dd>${{ subtotal|intcomma }}</dd>
+          </div>
+          <div class="checkout-summary__row">
+            <dt>Costo de envío</dt>
+            <dd>${{ shipping_cost|intcomma }}</dd>
+          </div>
+          <div class="checkout-summary__row checkout-summary__row--total">
+            <dt>Total</dt>
+            <dd class="checkout-summary__total">${{ total|intcomma }}</dd>
+          </div>
+        </dl>
+
+        <form method="post" action="{% url 'orders:place' %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn--accent checkout-summary__confirm">
+            Confirmar y pagar
+          </button>
+        </form>
+
+        <a href="{% url 'orders:payment' %}" class="btn btn--outline checkout-summary__back">
+          Volver al pago
+        </a>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

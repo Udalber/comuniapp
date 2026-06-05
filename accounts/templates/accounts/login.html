@@ -1,0 +1,115 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Iniciar sesión — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'accounts/css/auth.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="auth-page">
+  <div class="auth-layout card">
+    {% include "accounts/_auth_brand_panel.html" %}
+
+    <div class="auth-form-panel">
+      <header class="auth-form-panel__header">
+        <h1 class="auth-form-panel__title">Iniciar sesión</h1>
+        <p class="auth-form-panel__subtitle">Accede a tu cuenta de ComuniApp</p>
+      </header>
+
+      <form
+        class="auth-form"
+        method="post"
+        action="{% url 'accounts:login' %}"
+        data-auth-form="login"
+        novalidate
+      >
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <p class="auth-form__error-global" role="alert">{{ form.non_field_errors.0 }}</p>
+        {% endif %}
+
+        <div class="auth-field{% if form.email.errors %} auth-field--invalid{% endif %}">
+          <label class="auth-field__label" for="id_login_email">Correo electrónico</label>
+          <input
+            type="email"
+            name="email"
+            id="id_login_email"
+            class="input"
+            value="{{ form.email.value|default:'' }}"
+            autocomplete="email"
+            required
+            aria-describedby="id_login_email_error{% if form.email.errors %} id_login_email_server_error{% endif %}"
+            {% if form.email.errors %}aria-invalid="true"{% endif %}
+          >
+          {% for error in form.email.errors %}
+          <p class="auth-field__error" id="id_login_email_server_error" role="alert">{{ error }}</p>
+          {% empty %}
+          <p class="auth-field__error" id="id_login_email_error" data-js-error role="alert" aria-live="polite"></p>
+          {% endfor %}
+        </div>
+
+        <div class="auth-field{% if form.password.errors %} auth-field--invalid{% endif %}">
+          <label class="auth-field__label" for="id_login_password">Contraseña</label>
+          <div class="auth-field__input-wrap">
+            <input
+              type="password"
+              name="password"
+              id="id_login_password"
+              class="input"
+              autocomplete="current-password"
+              required
+              aria-describedby="id_login_password_error{% if form.password.errors %} id_login_password_server_error{% endif %}"
+              {% if form.password.errors %}aria-invalid="true"{% endif %}
+            >
+            <button
+              type="button"
+              class="auth-field__toggle"
+              data-password-toggle
+              aria-controls="id_login_password"
+              aria-pressed="false"
+              aria-label="Mostrar contraseña"
+            >Mostrar</button>
+          </div>
+          {% for error in form.password.errors %}
+          <p class="auth-field__error" id="id_login_password_server_error" role="alert">{{ error }}</p>
+          {% empty %}
+          <p class="auth-field__error" id="id_login_password_error" data-js-error role="alert" aria-live="polite"></p>
+          {% endfor %}
+        </div>
+
+        <div class="auth-form__row">
+          <label class="auth-checkbox" for="id_remember_me">
+            <input
+              type="checkbox"
+              name="remember_me"
+              id="id_remember_me"
+              {% if form.remember_me.value %}checked{% endif %}
+            >
+            Recordarme
+          </label>
+          <a class="auth-link" href="{% url 'accounts:password_reset' %}">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn--primary auth-form__submit"
+          data-auth="login-submit"
+          disabled
+        >Iniciar sesión</button>
+
+        <p class="auth-form__footer">
+          ¿No tienes cuenta?
+          <a class="auth-link" href="{% url 'accounts:register' %}">Regístrate</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'accounts/js/auth.js' %}" defer></script>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Dirección de envío — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page" data-checkout-page="address">
+  <div class="container">
+    {% include "orders/_checkout_steps.html" %}
+
+    <header class="checkout-page__header">
+      <h1 class="h1 checkout-page__title">Dirección de envío</h1>
+      <p class="checkout-page__subtitle text-secondary">
+        Indica dónde quieres recibir tu pedido.
+      </p>
+    </header>
+
+    <div class="checkout-layout">
+      <div class="checkout-layout__main card">
+        <form
+          class="checkout-form"
+          method="post"
+          action="{% url 'orders:checkout' %}"
+          data-checkout-form="address"
+          novalidate
+        >
+          {% csrf_token %}
+          {{ form.saved_address_id }}
+
+          {% if saved_addresses %}
+          <section class="checkout-saved" aria-labelledby="saved-addresses-heading">
+            <h2 class="h4 checkout-saved__title" id="saved-addresses-heading">Direcciones guardadas</h2>
+            <ul class="checkout-saved__list" role="list">
+              {% for addr in saved_addresses %}
+              <li class="checkout-saved__item">
+                <label class="checkout-saved__label">
+                  <input
+                    type="radio"
+                    name="saved_address_radio"
+                    value="{{ addr.pk }}"
+                    class="checkout-saved__radio"
+                    data-saved-address
+                    data-address-line1="{{ addr.line1 }}"
+                    data-address-city="{{ addr.city }}"
+                    data-address-department="{{ addr.department }}"
+                    data-address-postal="{{ addr.postal_code }}"
+                    data-address-phone="{{ addr.phone }}"
+                    data-address-instructions="{{ addr.instructions }}"
+                  >
+                  <span class="checkout-saved__text">
+                    <strong>{{ addr.line1 }}</strong>
+                    <span class="text-secondary">{{ addr.city }}, {{ addr.department }} — {{ addr.postal_code }}</span>
+                  </span>
+                </label>
+              </li>
+              {% endfor %}
+            </ul>
+            <p class="checkout-saved__divider text-secondary">O ingresa una nueva dirección</p>
+          </section>
+          {% endif %}
+
+          {% if form.non_field_errors %}
+          <p class="checkout-form__error-global" role="alert">{{ form.non_field_errors.0 }}</p>
+          {% endif %}
+
+          <div class="checkout-field{% if form.line1.errors %} checkout-field--invalid{% endif %}">
+            <label class="checkout-field__label" for="id_line1">
+              Dirección <span class="checkout-field__required" aria-hidden="true">*</span>
+            </label>
+            {{ form.line1 }}
+            {% for error in form.line1.errors %}
+            <p class="checkout-field__error" role="alert">{{ error }}</p>
+            {% empty %}
+            <p class="checkout-field__error" data-js-error role="alert" aria-live="polite"></p>
+            {% endfor %}
+          </div>
+
+          <div class="checkout-form__row">
+            <div class="checkout-field{% if form.city.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_city">
+                Ciudad <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.city }}
+              {% for error in form.city.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% empty %}
+              <p class="checkout-field__error" data-js-error role="alert" aria-live="polite"></p>
+              {% endfor %}
+            </div>
+            <div class="checkout-field{% if form.department.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_department">
+                Departamento <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.department }}
+              {% for error in form.department.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% empty %}
+              <p class="checkout-field__error" data-js-error role="alert" aria-live="polite"></p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-form__row">
+            <div class="checkout-field{% if form.postal_code.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_postal_code">
+                Código postal <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.postal_code }}
+              {% for error in form.postal_code.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% empty %}
+              <p class="checkout-field__error" data-js-error role="alert" aria-live="polite"></p>
+              {% endfor %}
+            </div>
+            <div class="checkout-field{% if form.phone.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_phone">
+                Teléfono de contacto <span class="checkout-field__required" aria-hidden="true">*</span>
+              </label>
+              {{ form.phone }}
+              {% for error in form.phone.errors %}
+              <p class="checkout-field__error" role="alert">{{ error }}</p>
+              {% empty %}
+              <p class="checkout-field__error" data-js-error role="alert" aria-live="polite"></p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-field{% if form.instructions.errors %} checkout-field--invalid{% endif %}">
+            <label class="checkout-field__label" for="id_instructions">Instrucciones adicionales</label>
+            {{ form.instructions }}
+            {% for error in form.instructions.errors %}
+            <p class="checkout-field__error" role="alert">{{ error }}</p>
+            {% endfor %}
+          </div>
+
+          <div class="checkout-field checkout-field--checkbox">
+            <label class="checkout-checkbox">
+              {{ form.save_address }}
+              <span>{{ form.save_address.label }}</span>
+            </label>
+          </div>
+
+          <div class="checkout-form__actions">
+            <a href="{% url 'cart:detail' %}" class="btn btn--outline">Volver al carrito</a>
+            <button type="submit" class="btn btn--primary">Continuar al pago</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'orders/js/orders.js' %}" defer></script>
+{% endblock %}

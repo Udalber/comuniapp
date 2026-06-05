@@ -1,0 +1,325 @@
+/* Historial de pedidos y direcciones — solo tokens */
+
+.orders-page {
+  padding-block: var(--space-32) var(--space-48);
+}
+
+.orders-page__header {
+  margin-bottom: var(--space-24);
+}
+
+.orders-page__header--row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.orders-page__title {
+  margin-bottom: var(--space-8);
+}
+
+.orders-page__subtitle {
+  margin: 0;
+}
+
+.orders-page__back {
+  display: inline-block;
+  margin-bottom: var(--space-12);
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.orders-page__back:hover {
+  color: var(--primary-dark);
+}
+
+.orders-page__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-12);
+  margin-bottom: var(--space-8);
+}
+
+.orders-page__title-row .orders-page__title {
+  margin-bottom: 0;
+}
+
+/* Estado del pedido */
+.order-status {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-4) var(--space-12);
+  border-radius: var(--radius-full);
+  font-size: var(--font-body-xsmall-size);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.order-status--pending {
+  background-color: color-mix(in srgb, var(--warning) 15%, var(--bg-card));
+  color: var(--warning);
+}
+
+.order-status--confirmed {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+.order-status--shipped {
+  background-color: color-mix(in srgb, var(--accent) 20%, var(--bg-card));
+  color: var(--primary-dark);
+}
+
+.order-status--delivered {
+  background-color: color-mix(in srgb, var(--success) 15%, var(--bg-card));
+  color: var(--success);
+}
+
+.order-status--cancelled {
+  background-color: color-mix(in srgb, var(--error) 10%, var(--bg-card));
+  color: var(--error);
+}
+
+/* Tabla historial (desktop) */
+.orders-history__table-wrap {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.orders-history__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-body-small-size);
+}
+
+.orders-history__table th,
+.orders-history__table td {
+  padding: var(--space-16) var(--space-24);
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.orders-history__table th {
+  font-weight: 600;
+  color: var(--text-secondary);
+  background-color: color-mix(in srgb, var(--bg-page) 50%, var(--bg-card));
+}
+
+.orders-history__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.orders-history__actions {
+  text-align: right;
+}
+
+.btn--sm {
+  padding: var(--space-8) var(--space-16);
+  font-size: var(--font-body-small-size);
+}
+
+/* Tarjetas historial (móvil) */
+.orders-history__cards {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.orders-history__card {
+  padding: var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.orders-history__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-12);
+}
+
+.orders-history__card-number {
+  font-size: var(--font-h4-size);
+}
+
+.orders-history__card-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+  margin: 0;
+}
+
+.orders-history__card-meta dt {
+  font-size: var(--font-body-xsmall-size);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+}
+
+.orders-history__card-meta dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.orders-history__card-cta {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .orders-history__table-wrap {
+    display: none;
+  }
+
+  .orders-history__cards {
+    display: flex;
+  }
+}
+
+/* Estado vacío */
+.orders-empty {
+  max-width: 480px;
+  margin-inline: auto;
+  padding: var(--space-48) var(--space-24);
+  text-align: center;
+}
+
+.orders-empty__icon {
+  color: var(--text-secondary);
+  margin: 0 auto var(--space-24);
+  opacity: 0.6;
+}
+
+.orders-empty__title {
+  margin-bottom: var(--space-8);
+}
+
+.orders-empty__text {
+  margin: 0 0 var(--space-24);
+}
+
+/* Detalle de pedido */
+.order-detail-layout {
+  display: grid;
+  gap: var(--space-24);
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .order-detail-layout {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+.order-detail-section {
+  padding: var(--space-24);
+  margin-bottom: var(--space-16);
+}
+
+.order-detail-section__title {
+  margin: 0 0 var(--space-16);
+}
+
+.order-detail-summary {
+  padding: var(--space-24);
+  position: sticky;
+  top: calc(var(--navbar-height) + var(--space-16));
+}
+
+.order-detail-summary__title {
+  margin: 0 0 var(--space-16);
+}
+
+/* Direcciones */
+.address-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.address-list__item {
+  padding: var(--space-24);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.address-list__line {
+  margin: 0 0 var(--space-8);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.address-list__badge {
+  display: inline-flex;
+  padding: var(--space-4) var(--space-8);
+  border-radius: var(--radius-full);
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-size: var(--font-body-xsmall-size);
+  font-weight: 600;
+}
+
+.address-list__meta {
+  margin: 0 0 var(--space-4);
+  font-size: var(--font-body-small-size);
+}
+
+.address-list__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+}
+
+.address-list__delete {
+  color: var(--error);
+  border-color: color-mix(in srgb, var(--error) 40%, var(--border));
+}
+
+.address-list__delete:hover {
+  background-color: color-mix(in srgb, var(--error) 8%, transparent);
+}
+
+.address-form-layout {
+  max-width: 720px;
+}
+
+.address-form-layout__main {
+  padding: var(--space-24);
+}
+
+.address-delete {
+  max-width: 480px;
+  padding: var(--space-32) var(--space-24);
+}
+
+.address-delete__text {
+  margin: 0 0 var(--space-16);
+  font-size: var(--font-body-size);
+}
+
+.address-delete__preview {
+  margin: 0 0 var(--space-24);
+  padding: var(--space-16);
+  background-color: var(--primary-light);
+  border-radius: var(--radius-8);
+}
+
+.address-delete__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+}

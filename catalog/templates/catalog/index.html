@@ -1,0 +1,231 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Catálogo — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'catalog/css/catalog.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="catalog">
+  <div class="container">
+    <header class="catalog__header">
+      <div class="catalog__header-text">
+        <h1 class="h1 catalog__title">Catálogo de libros</h1>
+        <p class="catalog__subtitle text-secondary">
+          Explora libros de vendedores de tu comunidad.
+          {% if q %}
+          Resultados para «{{ q }}».
+          {% endif %}
+        </p>
+      </div>
+      <p class="catalog__count" aria-live="polite">
+        <strong>{{ total_count }}</strong>
+        {{ total_count|pluralize:"resultado encontrado,resultados encontrados" }}
+      </p>
+    </header>
+
+    <div class="catalog__toolbar">
+      <button
+        type="button"
+        class="btn btn--outline catalog__filter-toggle"
+        id="catalog-filter-toggle"
+        aria-expanded="false"
+        aria-controls="catalog-filters"
+      >
+        <svg class="catalog__filter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M4 6h16M7 12h10M10 18h4"/>
+        </svg>
+        Filtros
+      </button>
+    </div>
+
+    <div class="catalog__layout">
+      <aside class="catalog__filters" id="catalog-filters" aria-label="Filtros del catálogo">
+        <div class="catalog__filters-inner card">
+          <div class="catalog__filters-header">
+            <h2 class="catalog__filters-title h4">Filtros</h2>
+            <button
+              type="button"
+              class="catalog__filters-close"
+              id="catalog-filter-close"
+              aria-label="Cerrar filtros"
+            >&times;</button>
+          </div>
+
+          <form class="catalog__filters-form" id="catalog-filters-form" method="get" action="{% url 'catalog:index' %}">
+            {% if q %}
+            <input type="hidden" name="q" value="{{ q }}">
+            {% endif %}
+
+            <fieldset class="catalog__filter-group">
+              <legend class="catalog__filter-label">Categoría</legend>
+              <ul class="catalog__checkbox-list">
+                {% for category in categories %}
+                <li>
+                  <label class="catalog__checkbox">
+                    <input
+                      type="checkbox"
+                      name="category"
+                      value="{{ category.slug }}"
+                      {% if category.slug in selected_categories %}checked{% endif %}
+                    >
+                    <span>{{ category.name }}</span>
+                  </label>
+                </li>
+                {% endfor %}
+              </ul>
+            </fieldset>
+
+            <fieldset class="catalog__filter-group">
+              <legend class="catalog__filter-label">Rango de precio (COP)</legend>
+              <div class="catalog__price-range">
+                <label class="catalog__price-field">
+                  <span class="sr-only">Precio mínimo</span>
+                  <input
+                    class="input"
+                    type="number"
+                    name="price_min"
+                    placeholder="Mín."
+                    min="0"
+                    step="1000"
+                    value="{{ price_min }}"
+                  >
+                </label>
+                <span class="catalog__price-sep" aria-hidden="true">—</span>
+                <label class="catalog__price-field">
+                  <span class="sr-only">Precio máximo</span>
+                  <input
+                    class="input"
+                    type="number"
+                    name="price_max"
+                    placeholder="Máx."
+                    min="0"
+                    step="1000"
+                    value="{{ price_max }}"
+                  >
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="catalog__filter-group">
+              <legend class="catalog__filter-label">Estado del libro</legend>
+              <ul class="catalog__checkbox-list">
+                {% for value, label in condition_choices %}
+                <li>
+                  <label class="catalog__checkbox">
+                    <input
+                      type="checkbox"
+                      name="condition"
+                      value="{{ value }}"
+                      {% if value in selected_conditions %}checked{% endif %}
+                    >
+                    <span>{{ label }}</span>
+                  </label>
+                </li>
+                {% endfor %}
+              </ul>
+            </fieldset>
+
+            <fieldset class="catalog__filter-group">
+              <legend class="catalog__filter-label">Ordenar por</legend>
+              <label class="catalog__select-label" for="catalog-sort">Orden</label>
+              <select class="input catalog__select" id="catalog-sort" name="sort">
+                <option value="relevance" {% if sort == "relevance" %}selected{% endif %}>Relevancia</option>
+                <option value="price" {% if sort == "price" %}selected{% endif %}>Precio (menor a mayor)</option>
+                <option value="date" {% if sort == "date" %}selected{% endif %}>Fecha (más recientes)</option>
+              </select>
+            </fieldset>
+
+            <div class="catalog__filter-actions">
+              <button type="submit" class="btn btn--primary catalog__apply-btn">Aplicar filtros</button>
+              <a href="{% url 'catalog:index' %}" class="btn btn--outline catalog__clear-btn">
+                Limpiar filtros
+              </a>
+            </div>
+          </form>
+        </div>
+      </aside>
+
+      <div class="catalog__main">
+        {% if books %}
+        <ul class="catalog__grid">
+          {% for book in books %}
+          <li>
+            {% include "catalog/_book_card.html" with book=book %}
+          </li>
+          {% endfor %}
+        </ul>
+
+        {% if page_obj.has_other_pages %}
+        <nav class="catalog__pagination" aria-label="Paginación del catálogo">
+          <ul class="catalog__pagination-list">
+            {% if page_obj.has_previous %}
+            <li>
+              <a
+                class="catalog__pagination-link"
+                href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+              >Anterior</a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+              <li>
+                <span class="catalog__pagination-current" aria-current="page">{{ num }}</span>
+              </li>
+              {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+              <li>
+                <a
+                  class="catalog__pagination-link"
+                  href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ num }}"
+                >{{ num }}</a>
+              </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li>
+              <a
+                class="catalog__pagination-link"
+                href="?{% if pagination_query %}{{ pagination_query }}&{% endif %}page={{ page_obj.next_page_number }}"
+              >Siguiente</a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="catalog__empty card">
+          <div class="catalog__empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="M21 21l-4.35-4.35"/>
+            </svg>
+          </div>
+          {% if q %}
+          <h2 class="h3">No se encontraron resultados</h2>
+          <p class="text-secondary">
+            No hay libros que coincidan con «{{ q }}». Prueba con otro término o ajusta los filtros.
+          </p>
+          {% else %}
+          <h2 class="h3">No hay libros disponibles</h2>
+          <p class="text-secondary">
+            Aún no hay libros en el catálogo. Ejecuta <code>python manage.py seed_catalog</code> para cargar datos de demostración.
+          </p>
+          {% endif %}
+          <a href="{% url 'catalog:index' %}" class="btn btn--primary">Ver todo el catálogo</a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+<div class="catalog__overlay" id="catalog-filter-overlay" hidden></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'catalog/js/catalog.js' %}" defer></script>
+{% endblock %}

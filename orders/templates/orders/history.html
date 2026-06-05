@@ -1,0 +1,114 @@
+{% extends "core/base.html" %}
+{% load humanize static %}
+
+{% block title %}Mis pedidos — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'orders/css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="orders-page" data-orders-page="history">
+  <div class="container">
+    <header class="orders-page__header">
+      <h1 class="h1 orders-page__title">Mis pedidos</h1>
+      <p class="orders-page__subtitle text-secondary">
+        Consulta el historial y el estado de tus compras.
+      </p>
+    </header>
+
+    {% if orders %}
+    <div class="orders-history">
+      <div class="orders-history__table-wrap card" role="region" aria-label="Lista de pedidos">
+        <table class="orders-history__table">
+          <thead>
+            <tr>
+              <th scope="col">Número</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Total</th>
+              <th scope="col"><span class="sr-only">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+            <tr class="orders-history__row">
+              <td class="orders-history__number" data-label="Número">
+                <strong>{{ order.number }}</strong>
+              </td>
+              <td class="orders-history__date" data-label="Fecha">
+                {{ order.created_at|date:"d/m/Y" }}
+              </td>
+              <td class="orders-history__status" data-label="Estado">
+                <span class="order-status {{ order.status_css_class }}">
+                  {{ order.get_status_display }}
+                </span>
+              </td>
+              <td class="orders-history__total" data-label="Total">
+                ${{ order.total|intcomma }}
+              </td>
+              <td class="orders-history__actions" data-label="Acciones">
+                <a
+                  href="{% url 'orders:order_detail' number=order.number %}"
+                  class="btn btn--outline btn--sm"
+                >
+                  Ver detalle
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="orders-history__cards" role="list" aria-label="Lista de pedidos">
+        {% for order in orders %}
+        <li class="orders-history__card card">
+          <div class="orders-history__card-header">
+            <strong class="orders-history__card-number">{{ order.number }}</strong>
+            <span class="order-status {{ order.status_css_class }}">
+              {{ order.get_status_display }}
+            </span>
+          </div>
+          <dl class="orders-history__card-meta">
+            <div>
+              <dt>Fecha</dt>
+              <dd>{{ order.created_at|date:"d/m/Y" }}</dd>
+            </div>
+            <div>
+              <dt>Total</dt>
+              <dd>${{ order.total|intcomma }}</dd>
+            </div>
+          </dl>
+          <a
+            href="{% url 'orders:order_detail' number=order.number %}"
+            class="btn btn--outline orders-history__card-cta"
+          >
+            Ver detalle
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% else %}
+    <div class="orders-empty card">
+      <div class="orders-empty__icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64">
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <path d="M9 12h6M9 16h6"/>
+        </svg>
+      </div>
+      <h2 class="h3 orders-empty__title">Aún no tienes pedidos</h2>
+      <p class="orders-empty__text text-secondary">
+        Cuando realices una compra, aparecerá aquí con su estado y detalle.
+      </p>
+      <a href="{% url 'catalog:index' %}" class="btn btn--primary orders-empty__cta">
+        Explorar catálogo
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -27,4 +27,29 @@
       setOpen(false);
     }
   });
+
+  var userTrigger = document.getElementById("navbar-user-trigger");
+  var userDropdown = document.getElementById("navbar-user-dropdown");
+
+  if (userTrigger && userDropdown) {
+    function setUserMenuOpen(open) {
+      userDropdown.hidden = !open;
+      userDropdown.classList.toggle("is-open", open);
+      userTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+
+    userTrigger.addEventListener("click", function () {
+      var isOpen = !userDropdown.hidden;
+      setUserMenuOpen(!isOpen);
+    });
+
+    document.addEventListener("click", function (evt) {
+      if (
+        !userTrigger.contains(evt.target) &&
+        !userDropdown.contains(evt.target)
+      ) {
+        setUserMenuOpen(false);
+      }
+    });
+  }
 })();

@@ -1,0 +1,164 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Método de pago — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="checkout-page" data-checkout-page="payment">
+  <div class="container">
+    {% include "orders/_checkout_steps.html" %}
+
+    <header class="checkout-page__header">
+      <h1 class="h1 checkout-page__title">Método de pago</h1>
+      <p class="checkout-page__subtitle text-secondary">
+        Elige cómo deseas pagar tu pedido. Pago simulado para fines académicos.
+      </p>
+    </header>
+
+    <div class="checkout-layout">
+      <div class="checkout-layout__main card">
+        <div class="checkout-secure" role="status">
+          <svg class="checkout-secure__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span>Pago seguro — conexión SSL simulada</span>
+        </div>
+
+        <form
+          class="checkout-form"
+          method="post"
+          action="{% url 'orders:payment' %}"
+          data-checkout-form="payment"
+          novalidate
+        >
+          {% csrf_token %}
+
+          {% if form.non_field_errors %}
+          <p class="checkout-form__error-global" role="alert">{{ form.non_field_errors.0 }}</p>
+          {% endif %}
+
+          <fieldset class="checkout-payment-methods">
+            <legend class="sr-only">Selecciona un método de pago</legend>
+
+            <label class="checkout-payment-option">
+              <input type="radio" name="payment_method" value="pse" class="checkout-payment-option__input" data-payment-method-radio {% if form.payment_method.value == 'pse' %}checked{% endif %}>
+              <span class="checkout-payment-option__card">
+                <span class="checkout-payment-option__icon checkout-payment-option__icon--pse" aria-hidden="true">PSE</span>
+                <span class="checkout-payment-option__name">PSE</span>
+                <span class="checkout-payment-option__desc text-secondary">Débito desde tu banco</span>
+              </span>
+            </label>
+
+            <label class="checkout-payment-option">
+              <input type="radio" name="payment_method" value="nequi" class="checkout-payment-option__input" data-payment-method-radio {% if form.payment_method.value == 'nequi' %}checked{% endif %}>
+              <span class="checkout-payment-option__card">
+                <span class="checkout-payment-option__icon checkout-payment-option__icon--nequi" aria-hidden="true">N</span>
+                <span class="checkout-payment-option__name">Nequi</span>
+                <span class="checkout-payment-option__desc text-secondary">Billetera móvil</span>
+              </span>
+            </label>
+
+            <label class="checkout-payment-option">
+              <input type="radio" name="payment_method" value="daviplata" class="checkout-payment-option__input" data-payment-method-radio {% if form.payment_method.value == 'daviplata' %}checked{% endif %}>
+              <span class="checkout-payment-option__card">
+                <span class="checkout-payment-option__icon checkout-payment-option__icon--daviplata" aria-hidden="true">D</span>
+                <span class="checkout-payment-option__name">Daviplata</span>
+                <span class="checkout-payment-option__desc text-secondary">Billetera Davivienda</span>
+              </span>
+            </label>
+
+            <label class="checkout-payment-option">
+              <input type="radio" name="payment_method" value="card" class="checkout-payment-option__input" data-payment-method-radio {% if form.payment_method.value == 'card' %}checked{% endif %}>
+              <span class="checkout-payment-option__card">
+                <span class="checkout-payment-option__icon checkout-payment-option__icon--card" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                    <path d="M2 10h20"/>
+                  </svg>
+                </span>
+                <span class="checkout-payment-option__name">Tarjeta crédito/débito</span>
+                <span class="checkout-payment-option__desc text-secondary">Visa, Mastercard</span>
+              </span>
+            </label>
+          </fieldset>
+
+          <div class="checkout-payment-fields" data-payment-panel="pse" hidden>
+            <h2 class="h4 checkout-payment-fields__title">Datos PSE</h2>
+            <div class="checkout-field{% if form.pse_bank.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_pse_bank">Banco <span class="checkout-field__required">*</span></label>
+              {{ form.pse_bank }}
+              {% for error in form.pse_bank.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="checkout-field{% if form.pse_person_type.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_pse_person_type">Tipo de persona <span class="checkout-field__required">*</span></label>
+              {{ form.pse_person_type }}
+              {% for error in form.pse_person_type.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-payment-fields" data-payment-panel="nequi" hidden>
+            <h2 class="h4 checkout-payment-fields__title">Datos Nequi</h2>
+            <div class="checkout-field{% if form.nequi_phone.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_nequi_phone">Número Nequi <span class="checkout-field__required">*</span></label>
+              {{ form.nequi_phone }}
+              {% for error in form.nequi_phone.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-payment-fields" data-payment-panel="daviplata" hidden>
+            <h2 class="h4 checkout-payment-fields__title">Datos Daviplata</h2>
+            <div class="checkout-field{% if form.daviplata_phone.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_daviplata_phone">Número Daviplata <span class="checkout-field__required">*</span></label>
+              {{ form.daviplata_phone }}
+              {% for error in form.daviplata_phone.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-payment-fields" data-payment-panel="card" hidden>
+            <h2 class="h4 checkout-payment-fields__title">Datos de tarjeta</h2>
+            <p class="checkout-payment-fields__note text-body-small text-secondary">
+              Los datos de tarjeta no se almacenan. Validación simulada.
+            </p>
+            <div class="checkout-field{% if form.card_number.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_card_number">Número de tarjeta <span class="checkout-field__required">*</span></label>
+              {{ form.card_number }}
+              {% for error in form.card_number.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="checkout-form__row">
+              <div class="checkout-field{% if form.card_expiry.errors %} checkout-field--invalid{% endif %}">
+                <label class="checkout-field__label" for="id_card_expiry">Vencimiento <span class="checkout-field__required">*</span></label>
+                {{ form.card_expiry }}
+                {% for error in form.card_expiry.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+              </div>
+              <div class="checkout-field{% if form.card_cvv.errors %} checkout-field--invalid{% endif %}">
+                <label class="checkout-field__label" for="id_card_cvv">CVV <span class="checkout-field__required">*</span></label>
+                {{ form.card_cvv }}
+                {% for error in form.card_cvv.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+              </div>
+            </div>
+            <div class="checkout-field{% if form.card_name.errors %} checkout-field--invalid{% endif %}">
+              <label class="checkout-field__label" for="id_card_name">Nombre en la tarjeta <span class="checkout-field__required">*</span></label>
+              {{ form.card_name }}
+              {% for error in form.card_name.errors %}<p class="checkout-field__error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+          </div>
+
+          <div class="checkout-form__actions">
+            <a href="{% url 'orders:checkout' %}" class="btn btn--outline">Volver a dirección</a>
+            <button type="submit" class="btn btn--primary">Continuar al resumen</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'orders/js/orders.js' %}" defer></script>
+{% endblock %}

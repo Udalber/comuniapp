@@ -1,6 +1,11 @@
 from django.urls import path
 
+from . import views
+
 app_name = "catalog"
 
-# TODO (sesión catalog): listado, detalle, búsqueda y filtros de libros.
-urlpatterns = []
+urlpatterns = [
+    path("", views.index, name="index"),
+    path("suggest/", views.suggest, name="suggest"),
+    path("<slug:slug>/", views.detail, name="detail"),
+]

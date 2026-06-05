@@ -10,8 +10,7 @@
       Descubre libros de vendedores locales, restauradores y bibliotecarios de tu comunidad.
     </p>
 
-    <form class="hero__search" action="#" method="get" role="search">
-      {# TODO (sesión catalog): búsqueda en landing conectada al catálogo #}
+    <form class="hero__search" action="{% url 'catalog:index' %}" method="get" role="search">
       <label class="hero__search-label" for="hero-search">¿Qué libro buscas?</label>
       <div class="hero__search-row">
         <input
@@ -26,8 +25,7 @@
     </form>
 
     <div class="hero__actions">
-      {# TODO (sesión catalog): enlace al listado real #}
-      <a href="/catalog/" class="btn btn--accent">Explorar catálogo</a>
+      <a href="{% url 'catalog:index' %}" class="btn btn--accent">Explorar catálogo</a>
     </div>
   </div>
 </section>
@@ -37,19 +35,20 @@
     <header class="categories__header">
       <h2 id="categories-heading" class="h2">Explora por categoría</h2>
       <p class="text-secondary text-body-small">
-        {# TODO (sesión catalog): categorías dinámicas desde BD #}
-        Categorías de ejemplo — el catálogo se implementará en una sesión posterior.
+        Encuentra libros por género en nuestro catálogo comunitario.
       </p>
     </header>
 
     <ul class="categories__grid">
       {% for category in categories %}
       <li>
-        <article class="card category-card">
-          <div class="category-card__icon" aria-hidden="true">{{ category.name|slice:":1" }}</div>
-          <h3 class="category-card__title">{{ category.name }}</h3>
-          <p class="category-card__hint">Próximamente</p>
-        </article>
+        <a href="{% url 'catalog:index' %}?category={{ category.slug }}" class="category-card-link">
+          <article class="card category-card">
+            <div class="category-card__icon" aria-hidden="true">{{ category.name|slice:":1" }}</div>
+            <h3 class="category-card__title">{{ category.name }}</h3>
+            <p class="category-card__hint">{{ category.book_count }} {{ category.book_count|pluralize:"libro,libros" }}</p>
+          </article>
+        </a>
       </li>
       {% endfor %}
     </ul>

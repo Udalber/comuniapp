@@ -1,0 +1,87 @@
+{% extends "core/base.html" %}
+{% load humanize static %}
+
+{% block title %}Pedido {{ order.number }} — ComuniApp{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'orders/css/orders.css' %}">
+<link rel="stylesheet" href="{% static 'orders/css/history.css' %}">
+{% endblock %}
+
+{% block content %}
+<section class="orders-page orders-page--detail" data-orders-page="detail">
+  <div class="container">
+    <header class="orders-page__header">
+      <a href="{% url 'orders:history' %}" class="orders-page__back text-body-small">
+        &larr; Volver a mis pedidos
+      </a>
+      <div class="orders-page__title-row">
+        <h1 class="h1 orders-page__title">Pedido {{ order.number }}</h1>
+        <span class="order-status {{ order.status_css_class }}">
+          {{ order.get_status_display }}
+        </span>
+      </div>
+      <p class="orders-page__subtitle text-secondary">
+        Realizado el {{ order.created_at|date:"d \d\e F \d\e Y" }}
+        &middot; Entrega estimada: <strong>{{ order.estimated_delivery|date:"d \d\e F \d\e Y" }}</strong>
+      </p>
+    </header>
+
+    <div class="order-detail-layout">
+      <div class="order-detail-layout__main">
+        <section class="order-detail-section card" aria-labelledby="order-items-heading">
+          <h2 class="h3 order-detail-section__title" id="order-items-heading">Artículos</h2>
+          <ul class="checkout-review-items" role="list">
+            {% for item in order.items.all %}
+            <li class="checkout-review-item">
+              <div class="checkout-review-item__info">
+                <span class="checkout-review-item__title">{{ item.title_snapshot }}</span>
+                <span class="checkout-review-item__meta text-secondary">
+                  {{ item.quantity }} x ${{ item.unit_price_snapshot|intcomma }}
+                </span>
+              </div>
+              <span class="checkout-review-item__subtotal">${{ item.line_subtotal|intcomma }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+
+        <section class="order-detail-section card" aria-labelledby="order-shipping-heading">
+          <h2 class="h3 order-detail-section__title" id="order-shipping-heading">Dirección de envío</h2>
+          <address class="checkout-review-address">
+            {{ order.shipping_line1 }}<br>
+            {{ order.shipping_city }}, {{ order.shipping_department }} {{ order.shipping_postal_code }}<br>
+            Tel: {{ order.shipping_phone }}
+            {% if order.shipping_instructions %}
+            <br><span class="text-secondary">Instrucciones: {{ order.shipping_instructions }}</span>
+            {% endif %}
+          </address>
+        </section>
+
+        <section class="order-detail-section card" aria-labelledby="order-payment-heading">
+          <h2 class="h3 order-detail-section__title" id="order-payment-heading">Método de pago</h2>
+          <p class="checkout-review-payment">{{ order.get_payment_method_display }}</p>
+        </section>
+      </div>
+
+      <aside class="order-detail-summary card" aria-labelledby="order-totals-heading">
+        <h2 class="h3 order-detail-summary__title" id="order-totals-heading">Resumen</h2>
+        <dl class="checkout-summary__rows">
+          <div class="checkout-summary__row">
+            <dt>Subtotal</dt>
+            <dd>${{ order.subtotal|intcomma }}</dd>
+          </div>
+          <div class="checkout-summary__row">
+            <dt>Envío</dt>
+            <dd>${{ order.shipping_cost|intcomma }}</dd>
+          </div>
+          <div class="checkout-summary__row checkout-summary__row--total">
+            <dt>Total</dt>
+            <dd class="checkout-summary__total">${{ order.total|intcomma }}</dd>
+          </div>
+        </dl>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}
