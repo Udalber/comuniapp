@@ -30,6 +30,11 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Render inyecta el hostname público del servicio (ej. comuniapp.onrender.com).
+_render_host = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if _render_host and _render_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_render_host)
+
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
@@ -38,6 +43,11 @@ CSRF_TRUSTED_ORIGINS = [
     ).split(",")
     if origin.strip()
 ]
+
+if _render_host:
+    _render_origin = f"https://{_render_host}"
+    if _render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(_render_origin)
 
 # Render termina TLS en el proxy; necesario para cookies seguras y redirects HTTPS.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -126,11 +136,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
-# Manifest + compresión solo en producción (requiere collectstatic).
+# Compresión en producción sin manifest (evita 500 por entradas faltantes en staticfiles.json).
 _STATICFILES_BACKEND = (
     "django.contrib.staticfiles.storage.StaticFilesStorage"
     if DEBUG
-    else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+    else "whitenoise.storage.CompressedStaticFilesStorage"
 )
 
 STORAGES = {
