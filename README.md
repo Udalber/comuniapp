@@ -1,6 +1,6 @@
 # ComuniApp — Librería Virtual Comunitaria
 
-MVP web académico (Universidad Iberoamericana, Análisis y Diseño de Sistemas). Plataforma para conectar lectores con vendedores y servicios del libro en la comunidad.
+MVP web académico de la **Universidad Iberoamericana** (Análisis y Diseño de Sistemas). Plataforma para conectar lectores con vendedores y servicios del libro en la comunidad.
 
 **Prototipo de referencia:** [Figma — ComuniApp](https://www.figma.com/design/sUIJIYy4Wf3Y7oI0oWeH41)
 
@@ -9,13 +9,22 @@ MVP web académico (Universidad Iberoamericana, Análisis y Diseño de Sistemas)
 - Django (última versión estable)
 - Python 3.11+
 - HTML, CSS y JavaScript vanilla (sin React, Vue, Tailwind ni Bootstrap)
+- SQLite (desarrollo) / PostgreSQL (producción)
+- WhiteNoise para archivos estáticos en producción
 
-## Documentación para agentes
+## Funcionalidades del MVP
+
+- Registro e inicio de sesión por correo electrónico
+- Catálogo de libros con búsqueda, filtros y detalle
+- Carrito de compras (sesión)
+- Checkout en cuatro pasos (dirección, pago simulado, resumen, confirmación)
+- Historial de pedidos, perfil de usuario y direcciones guardadas
+
+## Documentación
 
 | Documento | Contenido |
 |-----------|-----------|
-| **[IMPLEMENTATION_SPEC.md](IMPLEMENTATION_SPEC.md)** | Alcance de la sesión 0, arquitectura, contratos (plantillas, CSS, URLs) y backlog para sesiones posteriores |
-| **[RUNBOOK.md](RUNBOOK.md)** | Cómo encender el servidor, verificar HTTP 200 y resolver errores comunes |
+| **[RUNBOOK.md](RUNBOOK.md)** | Instalación local, encender el servidor y solución de problemas frecuentes |
 
 ## Inicio rápido
 
@@ -23,9 +32,11 @@ MVP web académico (Universidad Iberoamericana, Análisis y Diseño de Sistemas)
 cd comuniapp
 python -m venv .venv
 .venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # Linux / macOS
 pip install -r requirements.txt
 copy .env.example .env          # opcional; ajustar SECRET_KEY en producción
 python manage.py migrate
+python manage.py seed_catalog   # catálogo de demostración (opcional)
 python manage.py runserver
 ```
 
@@ -33,16 +44,16 @@ Abrir http://127.0.0.1:8000/
 
 ## Estructura de apps
 
-| App       | Responsabilidad                                      | Estado en esta sesión   |
-|-----------|------------------------------------------------------|-------------------------|
-| `config`  | Settings, URLs raíz, WSGI                            | Configurado             |
-| `core`    | `base.html`, navbar, footer, landing, CSS de diseño  | Implementado            |
-| `accounts`| Modelo `User` (`AbstractUser`)                       | Modelo + `AUTH_USER_MODEL` |
-| `catalog` | Catálogo y búsqueda                                  | Vacía (TODO)            |
-| `cart`    | Carrito                                              | Vacía (TODO)            |
-| `orders`  | Pedidos y checkout                                   | Vacía (TODO)            |
+| App | Responsabilidad |
+|-----|-----------------|
+| `config` | Settings, URLs raíz, WSGI |
+| `core` | Layout global (`base.html`), landing, CSS de diseño |
+| `accounts` | Autenticación, perfil y cambio de contraseña |
+| `catalog` | Catálogo, búsqueda, filtros y detalle de libros |
+| `cart` | Carrito de compras en sesión |
+| `orders` | Checkout, pedidos, historial y direcciones |
 
-## Convenciones para agentes / desarrolladores
+## Convenciones de desarrollo
 
 1. **Plantillas:** Toda vista renderiza una plantilla que extiende `core/base.html`.
 2. **Estilos:** Usar únicamente variables CSS de `core/static/css/design.css`. No hardcodear colores, espaciados ni radios.
@@ -53,26 +64,31 @@ Abrir http://127.0.0.1:8000/
 
 ## Variables de entorno
 
-| Variable        | Descripción                          | Por defecto              |
-|-----------------|--------------------------------------|--------------------------|
-| `SECRET_KEY`    | Clave Django                         | valor dev (cambiar)      |
-| `DEBUG`         | Modo depuración                      | `True`                   |
-| `ALLOWED_HOSTS` | Hosts permitidos (coma-separados)    | `localhost,127.0.0.1`  |
-| `DATABASE_URL`  | URL PostgreSQL (dj-database-url)     | SQLite local           |
-
-WhiteNoise sirve archivos estáticos en producción (`collectstatic`).
+| Variable | Descripción | Por defecto |
+|----------|-------------|-------------|
+| `SECRET_KEY` | Clave Django | valor dev (cambiar en producción) |
+| `DEBUG` | Modo depuración | `True` |
+| `ALLOWED_HOSTS` | Hosts permitidos (coma-separados) | `localhost,127.0.0.1` |
+| `DATABASE_URL` | URL PostgreSQL (dj-database-url) | SQLite local |
 
 ## Comandos útiles
 
 ```bash
+python manage.py test
 python manage.py createsuperuser
 python manage.py collectstatic
 python manage.py check
+python manage.py seed_catalog
 ```
 
-## Sesiones futuras (no incluidas aquí)
+## Pruebas
 
-- Login, registro y perfil (`accounts`)
-- Modelos y vistas de libros (`catalog`)
-- Carrito y contador en navbar (`cart`)
-- Checkout y pedidos (`orders`)
+```bash
+python manage.py test
+```
+
+El proyecto incluye pruebas unitarias e de integración del flujo de compra completo.
+
+## Despliegue
+
+El proyecto está preparado para **Render**: conectar el repositorio con el Blueprint `render.yaml`. El script `build.sh` instala dependencias, recopila estáticos, aplica migraciones y ejecuta `seed_catalog`.

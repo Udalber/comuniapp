@@ -53,3 +53,8 @@ Thumbs.db
 htmlcov/
 .pytest_cache/
 .mypy_cache/
+
+# Documentación — solo README y RUNBOOK en el repositorio
+*.md
+!README.md
+!RUNBOOK.md
